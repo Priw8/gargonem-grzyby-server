@@ -7,7 +7,7 @@
 // Link do webhooka na którego wysyłane mają być komunikaty
 $WEBHOOK_URL = "";
 
-// Świat z którego akceptowane mają być grzyby (sprawdzany po nagłówku referrer)
+// Świat z którego akceptowane mają być grzyby (sprawdzany po nagłówku origin)
 $REQUIRED_WORLD = "aether";
 
 // Adres z którego mają być brane obrazki grzybów do pokazania na Discordzie

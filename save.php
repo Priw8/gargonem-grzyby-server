@@ -112,7 +112,7 @@ if ($timestampForThisNpc + $requiredDiff < time()) {
 
     $response = curl_exec( $ch );
     // Jak coś nie trybi to odkomentuj poniższą linię i sprawdź odpowiedź API Discorda
-    file_put_contents('php://stderr', print_r($response, TRUE));
+    // file_put_contents('php://stderr', print_r($response, TRUE));
     curl_close( $ch );
     echo '{"ok":1}';
 } else {

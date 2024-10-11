@@ -9,8 +9,13 @@ function sendError($reason) {
 
 // Nazwy NPC dozwolone do zapisywania
 $ALLOWED_NPCS = array(
+    // z .pl
     "Ogromna płomiennica tląca", "Ogromna dzwonkówka tarczowata", 
     "Ogromny bulwiak pospolity", "Ogromny mroźlarz", "Ogromny szpicak ponury",
+
+    // z .com
+    "Giant Smoldering Light", "Giant Shieldbell", "Giant Common Bulbcap",
+    "Giant Frostcap", "Giant Gloomspike"
 );
 
 // Poziomy NPC dozwolone do zapisywania

@@ -68,9 +68,20 @@ if ($timestamp == null) {
     $timestamp = array();
 }
 
-$timestampForThisNpc = $timestamp[$npcKey];
-if (empty($timestampForThisNpc)) {
-    $timestampForThisNpc = 0;
+// Migracja timestampów z 1.0 na format 1.1
+foreach ($timestamp as $key => $value) {
+    if (gettype($value) == "integer") {
+        $timestamp[$key] = [
+            "ts" => $value,
+            "location" => ""
+        ];
+    }
+}
+
+$timestampForThisNpc = 0;
+$prevNpcInfo = $timestamp[$npcKey];
+if (!empty($prevNpcInfo) && !empty($prevNpcInfo["ts"])) {
+    $timestampForThisNpc = $prevNpcInfo["ts"];
 }
 
 $foundBy = $_POST["foundBy"] ?? "Nick error";
@@ -85,20 +96,26 @@ if ($timestampForThisNpc + $requiredDiff < time()) {
         $timerRemaining = $defaultTimer;
     }
 
-    $timestamp[$npcKey] = time() + ($timerRemaining - $defaultTimer);
+    $npcLocation = $npc["map"] . " (" . $npc["x"] . "," . $npc["y"] . ")";
+    $ts = time() + ($timerRemaining - $defaultTimer);
+    $timestamp[$npcKey] = [
+        "ts" => $ts,
+        "location" => $npcLocation
+    ];
     $file = fopen("data/timestamps.json", "w");
-    fwrite($file, json_encode($timestamp));
+    $timestampSerialized = json_encode($timestamp);
+    fwrite($file, $timestampSerialized);
     fclose($file);
 
     $discordMessage = json_encode([
-        "content" => "$PING " . $npc["nick"] . " (" . $npc["lvl"] . "lvl) - " . $npc["map"] . " (" . $npc["x"] . "," . $npc["y"] . ")",
+        "content" => "$PING " . $npc["nick"] . " (" . $npc["lvl"] . "lvl) - " . $npcLocation,
         "username" => $npc["nick"],
         "avatar_url" => $NPC_ICON_PATH . $npc["icon"],
         "embeds" => [
             [
                 "title" => $foundBy . " znalazł grzyba!",
                 "type" => "rich",
-                "description" => $npc["nick"] . " (" . $npc["lvl"] . "lvl)\n" . $npc["map"] . " (" . $npc["x"] . "," . $npc["y"] . ")\n\n"
+                "description" => $npc["nick"] . " (" . $npc["lvl"] . "lvl)\n" . $npcLocation . "\n\n"
                     . "**Zniknie za:** <t:" . ($timerRemaining + time()) .":R>",
                 "thumbnail" => [
                     "url" => $NPC_ICON_PATH . $npc["icon"]
@@ -119,9 +136,9 @@ if ($timestampForThisNpc + $requiredDiff < time()) {
     // Jak coś nie trybi to odkomentuj poniższą linię i sprawdź odpowiedź API Discorda
     // file_put_contents('php://stderr', print_r($response, TRUE));
     curl_close( $ch );
-    echo '{"ok":1}';
+    echo '{"ok":1,"timers":' . $timestampSerialized .'}';
 } else {
-    echo '{"ok":1,"msg":"timestamp not expired"}';
+    echo '{"ok":1,"msg":"timestamp not expired","timers":' . json_encode($timestamp) . '}';
 }
 
 ?>

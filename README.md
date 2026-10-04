@@ -19,6 +19,33 @@ Jeżeli coś nie trybi, warto sprawdzić następujące rzeczy:
 - czy zapytania z gry idą na dobry adres (devtoolsy i zakładka `Network` do sprawdzenia)
 - logi w konsoli przeglądarki (w szczególności te zaczynające się od `[Gargonem::Grzyby]`)
 
+## Zmiany w wersji 1.1
+
+Nowa wersja zwraca dodatkowe informacje dzięki którym dodatek lepiej działa:
+
+- w momencie zapisywania timera od razu zwraca zaktualizowaną listę timerów, żeby minutnik nie czekał z odświeżeniem danych
+- zmienił się format zwracania danych: wcześniej dane grzybów były w JSONie w formie `{"Nazwa-lvl": timestamp}`, a teraz jest to `{"Nazwa-lvl": { "ts": timestamp, location: "mapa (x,y)" }}`. Dzięki temu dodatek pokazuje w dymku na minutniku gdzie aktualnie znajduje się otwarty grzyb.
+
+Ogółem dodatek jest kompatybilny wstecznie ze starymi wersjami serwera więc nie trzeba aktualizować, no ale bez tego nowe ficzery nie będą działały bo z fusów nie wywróży brakujących danych.
+
+Jeżeli ktoś miał własną implementację serwera (wiem że co najmniej 1 osoba zrobiła xd) i chce dodać analogiczne zmiany:
+
+- endpoint `read.php` zwraca teraz format wspomniany wcześniej, czyli `{"Nazwa-lvl": { "ts": timestamp, location: "mapa (x,y)" }, ...}` zamiast samego timestampa per grzyb.
+- endpoint `save.php` zwracał wcześniej coś takiego: 
+  ```ts
+  {
+    ok: number;
+    msg?: string;
+  }
+  ```
+  Teraz dochodzi tutaj pole `timers`, które zawiera listę timerów (1:1 odpowiedź z `read.php`). Więc przykładowa odpowiedź po udanym zapisaniu:
+  ```json
+  {
+    "ok": 1,
+    "timers": { "Nazwa-lvl": { "ts": 1791105706, "location": "Głębokie Skałki (12,15)" } }
+  }
+  ```
+
 
 ## Licencja
 
